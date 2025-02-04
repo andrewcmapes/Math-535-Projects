@@ -1,29 +1,24 @@
 # File for exploring clustering algorithms
+import matplotlib.pyplot as plt
 import numpy as np
 
-def scatter_points(n: int=100, grid: list=[0,10], dim=2) -> list:
-    """
-    Scatter Points is a function that will generate a list of arrays that have random values.
+points = np.random.randn(400,2)
 
-    PARAMETERS:
-        n. TYPE: int
-            n is the number of arrays desired
-        grid. TYPE: list
-            grid is the list of boundaries for the random values the dimensions of the array take on
-        dim. TYPE: int
-            dim is the dimension of the arrays desired
-    """
-    points = []
-    for i in range(n):
-        points.append(np.random.randint(low=grid[0], high=grid[-1], size=(dim,1)))
-    return points
+def sorter(x: np.ndarray, k_reps: np.ndarray):
+    distances = np.linalg.norm(x[:, np.newaxis]-k_reps, axis=2)
+    assignments = np.argmin(distances, axis=1)
+    return assignments
 
-x = scatter_points()
+def kmeans(points: np.ndarray, k: int, iterations: int = 5):
+    dim = points[0].shape
+    representitives = [points[i] for i in range(k)]
+    assignments = sorter(points, representitives)
+    for i in range(iterations):
+        representitives = np.array([points[assignments == i].mean(axis=0) for i in range(k)])
+        assignments = sorter(points, representitives)
+        plt.scatter(points[:,0],points[:,1], c=assignments)
+        plt.show()
+    return assignments, representitives
 
-def kmeans(x: list, k: int, iterations: int = 10):
-    dim, _ = x[0].shape
-    first_reps = scatter_points(n=k, dim=dim)
-    # Currently in progress
-    pass
 
-print(kmeans(x, 3), "\n", x[0])
+X, Y = kmeans(points, 4)
